@@ -1076,6 +1076,11 @@ export class GeminiService {
     toast.loading('🤖 AI is analyzing your workflow...', { id: 'workflow-gen' });
     
     try {
+      // Start fallback preparation in parallel
+      const fallbackPromise = new Promise(resolve => {
+        setTimeout(() => resolve(this.enhancedFallbackData(prompt)), 800);
+      });
+      
       // Try AI generation first with visual feedback
       if (this.isAvailable) {
         try {
@@ -1092,8 +1097,7 @@ export class GeminiService {
           
           Return JSON with: {options: [{name, steps[], time, cost, efficiency}], best_option, reason, confidence}`;
           
-          const response = await this.generateWithTimeout(aiPrompt, 3000);
-          toast.loading('⚡ Processing AI response...', { id: 'workflow-gen' });
+          const response = await this.generateWithTimeout(aiPrompt, 1500);
           
           const parsed = this.parseJSONResponse(response);
           
@@ -1109,28 +1113,32 @@ export class GeminiService {
           }
         } catch (error) {
           console.warn('⚠️ AI generation failed, using enhanced fallback:', error);
-          toast.loading('🔄 Switching to intelligent fallback...', { id: 'workflow-gen' });
+          toast.loading('🔄 Using intelligent fallback...', { id: 'workflow-gen' });
+          // Use prepared fallback
+          const fallbackResult = await fallbackPromise as any;
+          const result = {
+            ...fallbackResult,
+            source: "fallback" as const,
+            confidence: 75
+          };
+          console.log('🎯 Enhanced fallback result:', result);
+          toast.success('✅ Workflow generated with intelligent analysis!', { id: 'workflow-gen' });
+          return result;
         }
       } else {
         console.log('🔧 AI not available, using intelligent fallback');
         toast.loading('🔧 Using intelligent demo mode...', { id: 'workflow-gen' });
+        // Use prepared fallback
+        const fallbackResult = await fallbackPromise as any;
+        const result = {
+          ...fallbackResult,
+          source: "fallback" as const,
+          confidence: 75
+        };
+        console.log('🎯 Enhanced fallback result:', result);
+        toast.success('✅ Workflow generated with intelligent analysis!', { id: 'workflow-gen' });
+        return result;
       }
-
-      // Enhanced contextual fallback with AI-like analysis
-      console.log('📊 Using enhanced fallback for prompt:', prompt);
-      const fallbackResult = this.enhancedFallbackData(prompt);
-      
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate processing
-      
-      const result = {
-        ...fallbackResult,
-        source: "fallback" as const,
-        confidence: 75
-      };
-      
-      console.log('🎯 Enhanced fallback result:', result);
-      toast.success('✅ Workflow generated with intelligent analysis!', { id: 'workflow-gen' });
-      return result;
     } catch (error) {
       console.error('❌ Workflow generation error:', error);
       toast.error('❌ Generation failed, using backup data', { id: 'workflow-gen' });
@@ -1140,6 +1148,9 @@ export class GeminiService {
       toast.success('🔄 Backup workflow loaded', { id: 'workflow-gen' });
       return ultimateFallback;
     }
+    
+    // This should never be reached, but TypeScript needs it
+    return this.getGenericWorkflow();
   }
 
   async analyzeProcess(request: ProcessMiningRequest): Promise<ProcessMiningResponse> {

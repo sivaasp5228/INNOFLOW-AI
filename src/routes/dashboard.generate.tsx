@@ -764,7 +764,7 @@ function GeneratePage() {
       }
     };
 
-    const done = window.setTimeout(generateWorkflow, 2000);
+    const done = window.setTimeout(generateWorkflow, 500);
     timersRef.current.push(done as unknown as number);
   };
 
