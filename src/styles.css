@@ -1,0 +1,226 @@
+@import "tailwindcss";
+/* Source: ../src */
+@import "tw-animate-css";
+
+/* Custom variant: dark (&:is(.dark *)) */
+
+/*
+ * Design system definition.
+ *
+ * The @theme inline block maps CSS custom properties to Tailwind utility
+ * classes (e.g. --color-primary -> bg-primary, text-primary).
+ *
+ * The :root and .dark blocks define the actual color values using oklch.
+ * All colors MUST use oklch format.
+ *
+ * To add a new semantic color:
+ * 1. Add the variable to :root (light value) and .dark (dark value)
+ * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+ */
+
+/* Theme variables mapping */
+:root {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  
+  --radius: 0.75rem;
+
+  /* Innoflow brand palette */
+  --brand-bg: oklch(0.155 0.012 290);          /* #0f0f14 ish */
+  --brand-deep-purple: oklch(0.25 0.11 340);   /* #3A0A2A */
+  --brand-secondary: oklch(0.38 0.16 345);     /* #7A1E5C */
+  --brand-accent: oklch(0.55 0.22 350);        /* #C21873 */
+  --brand-pink: oklch(0.62 0.24 355);          /* #E91E63 */
+  --brand-light: oklch(0.74 0.16 0);           /* #F06292 */
+
+  --background: oklch(0.155 0.012 290);
+  --foreground: oklch(0.97 0.01 320);
+  --card: oklch(0.20 0.02 300);
+  --card-foreground: oklch(0.97 0.01 320);
+  --popover: oklch(0.20 0.02 300);
+  --popover-foreground: oklch(0.97 0.01 320);
+  --primary: var(--brand-pink);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.25 0.05 320);
+  --secondary-foreground: oklch(0.97 0.01 320);
+  --muted: oklch(0.23 0.03 310);
+  --muted-foreground: oklch(0.72 0.04 320);
+  --accent: var(--brand-accent);
+  --accent-foreground: oklch(0.99 0 0);
+  --destructive: oklch(0.65 0.24 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: var(--brand-pink);
+  --chart-1: var(--brand-pink);
+  --chart-2: var(--brand-accent);
+  --chart-3: var(--brand-secondary);
+  --chart-4: var(--brand-light);
+  --chart-5: var(--brand-deep-purple);
+  --sidebar: oklch(0.18 0.02 300);
+  --sidebar-foreground: oklch(0.92 0.01 320);
+  --sidebar-primary: var(--brand-pink);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.25 0.05 320);
+  --sidebar-accent-foreground: oklch(0.99 0 0);
+  --sidebar-border: oklch(1 0 0 / 8%);
+  --sidebar-ring: var(--brand-pink);
+
+  --gradient-brand: linear-gradient(135deg, var(--brand-accent), var(--brand-pink));
+  --gradient-hero: radial-gradient(ellipse at top, oklch(0.38 0.16 345 / 0.45), transparent 60%),
+                   radial-gradient(ellipse at bottom right, oklch(0.62 0.24 355 / 0.35), transparent 55%),
+                   linear-gradient(180deg, oklch(0.155 0.012 290), oklch(0.13 0.015 295));
+  --shadow-glow: 0 0 0 1px oklch(0.62 0.24 355 / 0.5), 0 10px 40px -10px oklch(0.62 0.24 355 / 0.55);
+  --shadow-soft: 0 10px 30px -12px oklch(0 0 0 / 0.6);
+}
+
+.dark {
+  --background: oklch(0.129 0.042 264.695);
+  --foreground: oklch(0.984 0.003 247.858);
+  --card: oklch(0.208 0.042 265.755);
+  --card-foreground: oklch(0.984 0.003 247.858);
+  --popover: oklch(0.208 0.042 265.755);
+  --popover-foreground: oklch(0.984 0.003 247.858);
+  --primary: oklch(0.929 0.013 255.508);
+  --primary-foreground: oklch(0.208 0.042 265.755);
+  --secondary: oklch(0.279 0.041 260.031);
+  --secondary-foreground: oklch(0.984 0.003 247.858);
+  --muted: oklch(0.279 0.041 260.031);
+  --muted-foreground: oklch(0.704 0.04 256.788);
+  --accent: oklch(0.279 0.041 260.031);
+  --accent-foreground: oklch(0.984 0.003 247.858);
+  --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.984 0.003 247.858);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.551 0.027 264.364);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.208 0.042 265.755);
+  --sidebar-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-accent: oklch(0.279 0.041 260.031);
+  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.551 0.027 264.364);
+}
+
+@layer utilities {
+  .bg-gradient-brand { background-image: var(--gradient-brand); }
+  .bg-hero { background-image: var(--gradient-hero); }
+  .text-gradient-brand {
+    background-image: var(--gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .glass {
+    background: oklch(1 0 0 / 0.04);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid oklch(1 0 0 / 0.08);
+  }
+  .glow-pink { box-shadow: var(--shadow-glow); }
+  .ring-glow { box-shadow: 0 0 30px -5px oklch(0.62 0.24 355 / 0.6); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 oklch(0.62 0.24 355 / 0.4); }
+  50% { box-shadow: 0 0 30px 6px oklch(0.62 0.24 355 / 0.25); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+@keyframes fade-in-up {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@layer utilities {
+  .animate-fade-in-up { animation: fade-in-up 0.5s ease-out both; }
+  .animate-fade-in { animation: fade-in 0.6s ease-out both; }
+  .animate-float-slow { animation: float-slow 5s ease-in-out infinite; }
+  .shimmer {
+    background: linear-gradient(90deg,
+      oklch(1 0 0 / 0.04) 0%,
+      oklch(1 0 0 / 0.10) 50%,
+      oklch(1 0 0 / 0.04) 100%);
+    background-size: 800px 100%;
+    animation: shimmer 1.6s linear infinite;
+  }
+  .smooth-scroll { scroll-behavior: smooth; }
+  .transition-smooth { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+  .hover-lift { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+  .hover-lift:hover { transform: translateY(-3px); }
+}
+
+html { scroll-behavior: smooth; }
+
+/* Better mobile tap targets & no horizontal scroll */
+html, body { overflow-x: hidden; }
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+}
