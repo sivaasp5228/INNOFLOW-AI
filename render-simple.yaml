@@ -3,7 +3,7 @@ services:
   - type: web
     name: innoflow-ai
     env: static
-    buildCommand: bun install && bun run build
+    buildCommand: npm install && npm run build
     staticPublishPath: dist
     routes:
       - type: rewrite
