@@ -133,10 +133,8 @@ export function DocumentUpload({ onFilesProcessed, maxFiles = 5 }: DocumentUploa
               progress: 100,
               extractedSteps: extractedSteps.slice(0, Math.floor(Math.random() * 4) + 3)
             };
-            // Call the callback after a delay
-            setTimeout(() => {
-              onFilesProcessed([updatedFile]);
-            }, 0);
+            // Call the callback immediately with the processed file
+            onFilesProcessed([updatedFile]);
             return updatedFile;
           }
           return { ...f, progress: newProgress };

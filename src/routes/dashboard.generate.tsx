@@ -448,28 +448,92 @@ function GeneratePage() {
     }).sort((a, b) => (b.multiObjectiveScore || 0) - (a.multiObjectiveScore || 0));
   };
 
-  const handleFilesProcessed = (files: any[]) => {
+  const getDefaultProcessSteps = () => {
+  return [
+    {
+      id: "step-0",
+      title: "Process Initiation",
+      description: "Start of the workflow process",
+      type: "start" as const,
+      duration: "5-10 min",
+      resources: ["Team Lead"],
+      bottlenecks: [],
+      efficiency: 8,
+      position: { x: 50, y: 50 },
+      connections: ["step-1"]
+    },
+    {
+      id: "step-1",
+      title: "Requirements Analysis",
+      description: "Analyze and document requirements",
+      type: "process" as const,
+      duration: "15-30 min",
+      resources: ["Analyst", "Stakeholder"],
+      bottlenecks: ["Resource constraint"],
+      efficiency: 7,
+      position: { x: 250, y: 50 },
+      connections: ["step-2"]
+    },
+    {
+      id: "step-2",
+      title: "Process Design",
+      description: "Design the optimized workflow",
+      type: "process" as const,
+      duration: "20-45 min",
+      resources: ["Process Designer", "Team Lead"],
+      bottlenecks: [],
+      efficiency: 9,
+      position: { x: 450, y: 50 },
+      connections: ["step-3"]
+    },
+    {
+      id: "step-3",
+      title: "Implementation",
+      description: "Implement the workflow changes",
+      type: "end" as const,
+      duration: "30-60 min",
+      resources: ["Implementation Team"],
+      bottlenecks: ["Dependency delay"],
+      efficiency: 6,
+      position: { x: 650, y: 50 },
+      connections: []
+    }
+  ];
+};
+
+const handleFilesProcessed = (files: any[]) => {
+    console.log('Files processed:', files);
     setUploadedFiles(files);
     
-    // Extract process steps from uploaded files
+    // Always generate process steps, even if no extracted steps
     if (files.length > 0) {
       const extractedSteps = files.flatMap(file => file.extractedSteps || []);
       const uniqueSteps = Array.from(new Set(extractedSteps));
       
+      // If no steps extracted, create default process steps
+      let stepsToUse = uniqueSteps.length > 0 ? uniqueSteps : [
+        "Document Analysis",
+        "Process Mapping", 
+        "Bottleneck Identification",
+        "Optimization Planning",
+        "Implementation Strategy"
+      ];
+      
       // Create process flow steps
-      const flowSteps = uniqueSteps.slice(0, 8).map((step, index) => ({
+      const flowSteps = stepsToUse.slice(0, 8).map((step, index) => ({
         id: `step-${index}`,
         title: step,
-        description: `Process step ${index + 1} extracted from uploaded documents`,
-        type: index === 0 ? "start" : index === uniqueSteps.length - 1 ? "end" : "process",
+        description: `Process step ${index + 1} from workflow analysis`,
+        type: index === 0 ? "start" : index === stepsToUse.length - 1 ? "end" : "process",
         duration: `${Math.floor(Math.random() * 30) + 5}-${Math.floor(Math.random() * 60) + 30} min`,
         resources: ["Team Lead", "Analyst", "Stakeholder"],
         bottlenecks: Math.random() > 0.6 ? ["Resource constraint", "Dependency delay"] : [],
         efficiency: Math.floor(Math.random() * 4) + 6,
         position: { x: 50 + (index % 3) * 200, y: 50 + Math.floor(index / 3) * 120 },
-        connections: index < uniqueSteps.length - 1 ? [`step-${index + 1}`] : []
+        connections: index < stepsToUse.length - 1 ? [`step-${index + 1}`] : []
       }));
       
+      console.log('Generated flow steps:', flowSteps);
       setProcessSteps(flowSteps);
       
       // Generate bottlenecks
@@ -865,12 +929,24 @@ function GeneratePage() {
                   </p>
                 </div>
                 <DocumentUpload onFilesProcessed={handleFilesProcessed} />
+                
+                {uploadedFiles.length === 0 && (
+                  <div className="mt-4">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setProcessSteps(getDefaultProcessSteps())}
+                      className="w-full"
+                    >
+                      📊 Show Sample Process Flow
+                    </Button>
+                  </div>
+                )}
               </div>
               
               {/* Process Flow Visualization */}
-              {processSteps.length > 0 && (
+              {(processSteps.length > 0 || uploadedFiles.length > 0) && (
                 <ProcessFlowDiagram 
-                  steps={processSteps} 
+                  steps={processSteps.length > 0 ? processSteps : getDefaultProcessSteps()} 
                   onStepClick={(step) => console.log("Step clicked:", step)}
                 />
               )}
