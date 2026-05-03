@@ -1,6 +1,8 @@
 ﻿import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Sparkles, Loader2, CheckCircle2, Clock, DollarSign, Zap, ArrowRight, Wand2, Brain, GitBranch, Cpu, ScanSearch, Users, Wrench, AlertTriangle, Shield } from "lucide-react";
+import { Sparkles, Loader2, CheckCircle2, Clock, DollarSign, Zap, ArrowRight, Wand2, Brain, GitBranch, Cpu, ScanSearch, Users, Wrench, AlertTriangle, Shield, Download } from "lucide-react";
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -18,6 +20,8 @@ import { ResourceAllocation } from "@/components/innoflow/ResourceAllocation";
 import { RiskAssessment } from "@/components/innoflow/RiskAssessment";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { geminiService, type AIGeneratedStrategy, type WorkflowResponse } from "@/services/geminiService";
+import { useAuth } from "@/hooks/useAuth";
+import { useWorkflows } from "@/hooks/useWorkflows";
 
 export const Route = createFileRoute("/dashboard/generate")({
   component: GeneratePage,
@@ -209,6 +213,13 @@ function CostPill({ level }: { level: Strategy["cost"] }) {
 }
 
 function GeneratePage() {
+  const { user, isAuthenticated, getPreference } = useAuth();
+  const { createWorkflow } = useWorkflows(user?.id);
+  
+  // Get preferences once to avoid re-renders
+  const confidenceThreshold = getPreference("confidence_threshold", 85);
+  const autonomousMode = getPreference("autonomous_mode", true);
+  
   const [description, setDescription] = useState("");
   const [industry, setIndustry] = useState("Operations");
   const [loading, setLoading] = useState(false);
@@ -236,6 +247,131 @@ function GeneratePage() {
     { icon: GitBranch, label: "Generating candidate strategies" },
     { icon: Cpu, label: "Scoring & selecting recommendation" },
   ];
+
+  const downloadWorkflowPDF = async () => {
+    if (!workflowResponse || !selectedOption) {
+      toast.error("Please select a workflow strategy first");
+      return;
+    }
+
+    try {
+      toast.loading("Generating PDF...");
+
+      // Create a new PDF document
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      
+      // Add custom font for better text rendering
+      pdf.setFont('helvetica');
+      
+      // Helper function to add text with word wrap
+      const addText = (text: string, x: number, y: number, fontSize: number = 12, maxWidth: number = pageWidth - 40) => {
+        pdf.setFontSize(fontSize);
+        const lines = pdf.splitTextToSize(text, maxWidth);
+        lines.forEach((line: string, index: number) => {
+          pdf.text(line, x, y + (index * fontSize * 0.35));
+        });
+        return lines.length * fontSize * 0.35;
+      };
+
+      let currentY = 30;
+
+      // Header
+      pdf.setFontSize(24);
+      pdf.setTextColor(102, 126, 234); // Primary color
+      pdf.text('INNOFLOW-AI Workflow Plan', pageWidth / 2, currentY, { align: 'center' });
+      currentY += 15;
+
+      // Subtitle
+      pdf.setFontSize(14);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text('AI-Powered Workflow Optimization', pageWidth / 2, currentY, { align: 'center' });
+      currentY += 20;
+
+      // Divider
+      pdf.setDrawColor(200, 200, 200);
+      pdf.line(20, currentY, pageWidth - 20, currentY);
+      currentY += 15;
+
+      // Selected Strategy
+      pdf.setFontSize(18);
+      pdf.setTextColor(50, 50, 50);
+      pdf.text('Selected Strategy:', 20, currentY);
+      currentY += 10;
+
+      const selectedWorkflow = workflowResponse.options.find(opt => opt.name === selectedOption);
+      if (selectedWorkflow) {
+        pdf.setFontSize(16);
+        pdf.setTextColor(102, 126, 234);
+        currentY += addText(selectedWorkflow.name, 20, currentY, 16);
+        currentY += 10;
+
+        // Strategy Details
+        pdf.setFontSize(12);
+        pdf.setTextColor(100, 100, 100);
+        addText(`Time: ${selectedWorkflow.time}`, 20, currentY);
+        currentY += 8;
+        addText(`Cost: ${selectedWorkflow.cost}`, 20, currentY);
+        currentY += 8;
+        addText(`Efficiency: ${selectedWorkflow.efficiency}/10`, 20, currentY);
+        currentY += 15;
+      }
+
+      // Implementation Steps
+      pdf.setFontSize(16);
+      pdf.setTextColor(50, 50, 50);
+      pdf.text('Implementation Steps:', 20, currentY);
+      currentY += 10;
+
+      if (selectedWorkflow) {
+        selectedWorkflow.steps.forEach((step: string, index: number) => {
+          pdf.setFontSize(11);
+          pdf.setTextColor(70, 70, 70);
+          currentY += addText(`${index + 1}. ${step}`, 25, currentY, 11);
+          currentY += 5;
+        });
+      }
+
+      // AI Recommendation Reasoning
+      if (workflowResponse.reason) {
+        currentY += 10;
+        pdf.setFontSize(16);
+        pdf.setTextColor(50, 50, 50);
+        pdf.text('AI Recommendation Reasoning:', 20, currentY);
+        currentY += 10;
+
+        pdf.setFontSize(11);
+        pdf.setTextColor(70, 70, 70);
+        currentY += addText(workflowResponse.reason, 20, currentY, 11);
+        currentY += 10;
+      }
+
+      // Metadata
+      currentY += 10;
+      pdf.setFontSize(10);
+      pdf.setTextColor(150, 150, 150);
+      addText(`Generated on: ${new Date().toLocaleDateString()}`, 20, currentY);
+      currentY += 6;
+      addText(`Confidence: ${workflowResponse.confidence || 'N/A'}%`, 20, currentY);
+      currentY += 6;
+      addText(`Industry: ${industry}`, 20, currentY);
+
+      // Footer
+      pdf.setFontSize(8);
+      pdf.setTextColor(200, 200, 200);
+      pdf.text('Generated by INNOFLOW-AI - Autonomous Workflow Decision Engine', pageWidth / 2, pageHeight - 10, { align: 'center' });
+
+      // Save the PDF
+      const fileName = `INNOFLOW-Workflow-${selectedOption.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
+      pdf.save(fileName);
+
+      toast.success("PDF downloaded successfully!");
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      toast.error("Failed to generate PDF. Please try again.");
+    }
+  };
 
   useEffect(() => () => { timersRef.current.forEach(clearTimeout); }, []);
 
@@ -526,6 +662,8 @@ function GeneratePage() {
         const result = await geminiService.generateWorkflow(description);
         console.log('Workflow generation result:', result);
 
+        let finalResult: WorkflowResponse;
+        
         if (!result || !result.options || result.options.length === 0) {
           console.log('Invalid result, using ultimate fallback');
           const ultimateFallback = {
@@ -542,9 +680,54 @@ function GeneratePage() {
             reason: "Ultimate fallback strategy",
             source: "fallback" as const
           };
-          setWorkflowResponse(ultimateFallback);
+          finalResult = ultimateFallback;
         } else {
-          setWorkflowResponse(result);
+          finalResult = result;
+        }
+        
+        // Apply confidence threshold filter
+        let filteredResult = finalResult;
+        if (finalResult.confidence && finalResult.confidence < confidenceThreshold) {
+          // Filter out low-confidence options or show warning
+          filteredResult = {
+            ...finalResult,
+            options: finalResult.options.map(option => ({
+              ...option,
+              efficiency: option.efficiency * (finalResult.confidence! / 100) // Adjust efficiency based on confidence
+            })),
+            confidence: finalResult.confidence
+          };
+        }
+        
+        setWorkflowResponse(filteredResult);
+        
+        // Auto-select best option if autonomous mode is enabled
+        if (autonomousMode && filteredResult.best_option) {
+          setSelectedOption(filteredResult.best_option);
+        }
+        
+        // Save workflow to database if user is authenticated
+        if (isAuthenticated && user) {
+          try {
+            await createWorkflow({
+              user_id: user.id,
+              title: `${industry} Workflow - ${new Date().toLocaleDateString()}`,
+              description: description.substring(0, 200),
+              industry: industry,
+              status: 'completed',
+              input_data: { description, industry, priorities },
+              ai_response: finalResult,
+              confidence: finalResult.confidence || 85,
+              source: finalResult.source || 'ai',
+              is_template: false,
+              template_category: null,
+              organization_id: null
+            });
+            console.log('Workflow saved to database');
+          } catch (saveError) {
+            console.error('Failed to save workflow:', saveError);
+            toast.error('Workflow generated but failed to save to database');
+          }
         }
         
         clearInterval(tick);
@@ -1108,7 +1291,12 @@ function GeneratePage() {
                     <Button className="bg-green-600 hover:bg-green-700 text-white border-0">
                       <ArrowRight className="mr-1.5 h-4 w-4" /> Start Implementation
                     </Button>
-                    <Button variant="outline" className="border-green-500/30 text-green-400 hover:bg-green-500/10">
+                    <Button 
+                      variant="outline" 
+                      className="border-green-500/30 text-green-400 hover:bg-green-500/10"
+                      onClick={downloadWorkflowPDF}
+                    >
+                      <Download className="mr-1.5 h-4 w-4" />
                       Download Workflow Plan
                     </Button>
                   </div>

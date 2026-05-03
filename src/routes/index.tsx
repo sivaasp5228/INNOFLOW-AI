@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Innoflow AI — Autonomous Workflow Optimizer" },
-      { name: "description", content: "Autonomous AI that analyzes, optimizes, and decides the best workflow for your business." },
+      { title: "Innoflow AI" },
+      { name: "description", content: "Autonomous AI Workflow Optimizer." },
     ],
   }),
   component: Index,
