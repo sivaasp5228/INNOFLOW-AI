@@ -18,11 +18,11 @@ const mimeTypes = {
 
 const server = http.createServer((req, res) => {
   // Handle SPA routing - always serve index.html for non-file requests
-  let filePath = path.join(__dirname, 'dist', req.url === '/' ? 'index.html' : req.url);
+  let filePath = path.join(process.cwd(), 'dist', req.url === '/' ? 'index.html' : req.url);
   
   // If it's not a file with extension, serve index.html (SPA fallback)
   if (!path.extname(filePath)) {
-    filePath = path.join(__dirname, 'dist', 'index.html');
+    filePath = path.join(process.cwd(), 'dist', 'index.html');
   }
 
   const extname = path.extname(filePath).toLowerCase();
@@ -32,7 +32,7 @@ const server = http.createServer((req, res) => {
     if (err) {
       if (err.code === 'ENOENT') {
         // File not found, serve index.html for SPA routing
-        fs.readFile(path.join(__dirname, 'dist', 'index.html'), (err, content) => {
+        fs.readFile(path.join(process.cwd(), 'dist', 'index.html'), (err, content) => {
           if (err) {
             res.writeHead(500);
             res.end('Server Error');
