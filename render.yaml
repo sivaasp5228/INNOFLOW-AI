@@ -1,14 +1,12 @@
 services:
-  # Static Site
+  # Web Service (SPA)
   - type: web
     name: innoflow-ai
-    env: static
-    buildCommand: npm run build
-    staticPublishPath: dist
-    routes:
-      - type: rewrite
-        source: /.*
-        destination: /index.html
+    runtime: node
+    plan: free
+    buildCommand: bun install && bun run build
+    startCommand: bun install -g serve && serve -s dist
+    healthCheckPath: /
     envVars:
       - key: NODE_VERSION
         value: 18
