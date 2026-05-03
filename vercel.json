@@ -27,11 +27,5 @@
         }
       ]
     }
-  ],
-  "env": {
-    "VITE_GEMINI_API_KEY": "@gemini-api-key",
-    "VITE_SUPABASE_URL": "@supabase-url",
-    "VITE_SUPABASE_ANON_KEY": "@supabase-anon-key",
-    "VITE_SUPABASE_SERVICE_ROLE_KEY": "@supabase-service-role-key"
-  }
+  ]
 }
