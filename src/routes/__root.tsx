@@ -37,7 +37,6 @@ export const Route = createRootRoute({
       { property: "og:description", content: "Transform complex business processes into intelligent, optimized execution strategies instantly." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {
